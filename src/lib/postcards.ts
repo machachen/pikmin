@@ -106,7 +106,7 @@ export function createPostcard(input: CreatePostcardInput) {
           city,
           location_label,
           created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `
     )
     .run(
