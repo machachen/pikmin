@@ -1,0 +1,12 @@
+node_modules
+.next
+dist
+
+data/postcards.sqlite
+data/uploads/*
+!data/uploads/.gitkeep
+public/uploads/*
+!public/uploads/.gitkeep
+
+.DS_Store
+*.log
