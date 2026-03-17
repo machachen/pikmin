@@ -127,7 +127,7 @@ export function PostcardMap({
             <Popup>
               <div className="popup-card">
                 <strong>{postcard.title}</strong>
-                <p>{postcard.description}</p>
+                {postcard.description ? <p>{postcard.description}</p> : null}
                 <small>
                   {[postcard.city, postcard.region, postcard.country].filter(Boolean).join(", ")}
                 </small>
@@ -136,7 +136,6 @@ export function PostcardMap({
           </Marker>
         ))}
       </MapContainer>
-      <div className="map-help">Click anywhere on the map to pre-fill the add form.</div>
     </div>
   );
 }

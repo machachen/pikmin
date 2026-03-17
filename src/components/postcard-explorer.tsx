@@ -67,52 +67,71 @@ function PlaceTypeIcon({ placeType }: { placeType: PostcardPlaceType }) {
     return (
       <svg aria-hidden="true" className="place-type-icon" viewBox="0 0 24 24">
         <path
-          d="M5 12.5c0-3.4 3.3-6 7-6s7 2.6 7 6c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1Z"
+          d="M4.5 11.25c0-3.46 3.36-6.25 7.5-6.25s7.5 2.79 7.5 6.25c0 .69-.56 1.25-1.25 1.25H5.75c-.69 0-1.25-.56-1.25-1.25Z"
+          fill="currentColor"
+        />
+        <path
+          d="M9.2 12.5h5.6v5.05c0 1.9-1.21 3.2-2.8 3.2s-2.8-1.3-2.8-3.2V12.5Z"
           fill="currentColor"
           opacity="0.9"
         />
+        <circle cx="8.15" cy="9.2" r="1.2" fill="currentColor" opacity="0.42" />
+        <circle cx="12" cy="8.1" r="1.45" fill="currentColor" opacity="0.42" />
+        <circle cx="15.9" cy="9.3" r="1.05" fill="currentColor" opacity="0.42" />
         <path
-          d="M10 13.5h4v3.6c0 1.4-.9 2.4-2 2.4s-2-1-2-2.4v-3.6Z"
-          fill="currentColor"
+          d="M7.2 11.9c1.7-1.06 3.33-1.59 4.9-1.59 1.55 0 3.12.48 4.7 1.43"
+          fill="none"
           opacity="0.6"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeWidth="1.35"
         />
-        <circle cx="8.3" cy="10" r="1" fill="rgba(255,255,255,0.8)" />
-        <circle cx="12" cy="8.8" r="1.1" fill="rgba(255,255,255,0.85)" />
-        <circle cx="15.7" cy="10.1" r="0.9" fill="rgba(255,255,255,0.8)" />
       </svg>
     );
   }
 
   return (
     <svg aria-hidden="true" className="place-type-icon" viewBox="0 0 24 24">
-      <circle cx="12" cy="6.5" fill="currentColor" opacity="0.85" r="2.6" />
-      <circle cx="17.2" cy="10.8" fill="currentColor" opacity="0.8" r="2.4" />
-      <circle cx="15.2" cy="16.8" fill="currentColor" opacity="0.75" r="2.5" />
-      <circle cx="8.8" cy="16.8" fill="currentColor" opacity="0.75" r="2.5" />
-      <circle cx="6.8" cy="10.8" fill="currentColor" opacity="0.8" r="2.4" />
-      <circle cx="12" cy="11.8" fill="rgba(255,255,255,0.85)" r="1.7" />
+      <circle cx="12" cy="6.4" fill="currentColor" r="2.9" />
+      <circle cx="17.1" cy="10.2" fill="currentColor" r="2.65" />
+      <circle cx="15.2" cy="16.2" fill="currentColor" r="2.65" />
+      <circle cx="8.8" cy="16.2" fill="currentColor" r="2.65" />
+      <circle cx="6.9" cy="10.2" fill="currentColor" r="2.65" />
+      <circle cx="12" cy="11.35" fill="currentColor" opacity="0.42" r="1.95" />
       <rect
         fill="currentColor"
         height="4.8"
-        opacity="0.7"
+        opacity="0.92"
         rx="1.4"
         width="2.2"
         x="10.9"
-        y="16.1"
+        y="15.9"
       />
     </svg>
   );
 }
 
-function PlaceTypeBadge({ placeType }: { placeType: PostcardPlaceType }) {
+type PlaceTypeGlyphProps = {
+  placeType: PostcardPlaceType;
+  className?: string;
+};
+
+function PlaceTypeGlyph({ placeType, className = "" }: PlaceTypeGlyphProps) {
+  const classes = ["place-type-glyph", `is-${placeType}`, className].filter(Boolean).join(" ");
+
   return (
-    <span
-      aria-label={formatPlaceType(placeType)}
-      className={`place-type-badge is-${placeType}`}
-      title={formatPlaceType(placeType)}
-    >
+    <span aria-hidden="true" className={classes}>
       <PlaceTypeIcon placeType={placeType} />
     </span>
+  );
+}
+
+function PlaceTypeBadge({ placeType }: { placeType: PostcardPlaceType }) {
+  return (
+    <PlaceTypeGlyph
+      className="place-type-badge"
+      placeType={placeType}
+    />
   );
 }
 
@@ -133,7 +152,7 @@ function PlaceTypeTabs({ value, onChange }: PlaceTypeTabsProps) {
           role="tab"
           type="button"
         >
-          <PlaceTypeIcon placeType={placeType} />
+          <PlaceTypeGlyph placeType={placeType} />
           {formatPlaceType(placeType)}
         </button>
       ))}
@@ -160,7 +179,14 @@ function PlaceFilterTabs({ value, onChange }: PlaceFilterTabsProps) {
           role="tab"
           type="button"
         >
-          {filterValue === "all" ? "All" : formatPlaceType(filterValue)}
+          {filterValue === "all" ? (
+            <span aria-hidden="true" className="filter-tab-glyph is-all">
+              <Sparkles size={14} />
+            </span>
+          ) : (
+            <PlaceTypeGlyph placeType={filterValue} />
+          )}
+          <span>{filterValue === "all" ? "All" : formatPlaceType(filterValue)}</span>
         </button>
       ))}
     </div>
@@ -321,7 +347,6 @@ function AddPostcardForm({
         <textarea
           onChange={(event) => setDescription(event.target.value)}
           placeholder="A short note about where this postcard came from."
-          required
           rows={4}
           value={description}
         />
@@ -516,7 +541,6 @@ function EditPostcardForm({
         <span>Description</span>
         <textarea
           onChange={(event) => setDescription(event.target.value)}
-          required
           rows={4}
           value={description}
         />
@@ -584,10 +608,82 @@ function EditPostcardForm({
   );
 }
 
+type MapFocusCardProps = {
+  isCollapsed: boolean;
+  onEdit: (postcardId: number) => void;
+  postcard: Postcard | null;
+};
+
+function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
+  if (!postcard) {
+    return (
+      <div className={`map-panel-copy${isCollapsed ? " is-collapsed" : ""}`}>
+        <p className="eyebrow">
+          <Sparkles size={16} />
+          Pikmin Bloom postcard atlas
+        </p>
+        <h1>
+          <span className="hero-title-expanded">Track every postcard drop on one shared map.</span>
+          <span className="hero-title-collapsed">Postcard atlas</span>
+        </h1>
+        <p className="hero-copy">
+          Upload an image, pin its latitude and longitude, and the app will turn those
+          coordinates into country, region, and city tags for your collection.
+        </p>
+      </div>
+    );
+  }
+
+  const locationTags = getPostcardTags(postcard);
+
+  return (
+    <div className="map-panel-copy map-focus-card">
+      <div className="map-focus-media">
+        <Image
+          alt={postcard.title}
+          fill
+          sizes="(max-width: 720px) calc(100vw - 56px), 440px"
+          src={postcard.imageUrl}
+          style={{ objectFit: "cover" }}
+          unoptimized
+        />
+        <button className="map-focus-edit" onClick={() => onEdit(postcard.id)} type="button">
+          <Pencil size={14} />
+          Edit
+        </button>
+      </div>
+      <div className="map-focus-copy">
+        <div className="map-focus-topline">
+          <p className="eyebrow map-focus-label">
+            <PlaceTypeGlyph className="map-focus-label-icon" placeType={postcard.placeType} />
+            {formatPlaceType(postcard.placeType)}
+          </p>
+        </div>
+        <div className="map-focus-title-row">
+          <h2 className="map-focus-title">{postcard.title}</h2>
+        </div>
+        {postcard.description ? <p className="map-focus-description">{postcard.description}</p> : null}
+        {locationTags.length > 0 ? (
+          <div className="chip-row map-focus-tags">
+            {locationTags.map((tag) => (
+              <span className="chip" key={`${postcard.id}-${tag}`}>
+                {tag}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="map-focus-location">{formatLocation(postcard)}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   const [postcards, setPostcards] = useState(initialPostcards);
   const [selectedId, setSelectedId] = useState<number | null>(initialPostcards[0]?.id ?? null);
-  const [isComposerOpen, setIsComposerOpen] = useState(initialPostcards.length === 0);
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
+  const [isMapMounted, setIsMapMounted] = useState(false);
   const [pendingCoordinates, setPendingCoordinates] = useState<Coordinates | null>(null);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -618,6 +714,10 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   }, [copiedId]);
 
   useEffect(() => {
+    setIsMapMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (filteredPostcards.length === 0) {
       setSelectedId(null);
       return;
@@ -638,8 +738,6 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
 
   function handleMapPick(coordinates: Coordinates) {
     setPendingCoordinates(coordinates);
-    setIsComposerOpen(true);
-    setEditingId(null);
   }
 
   async function handleCopyCoordinates(postcard: Postcard) {
@@ -711,31 +809,23 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   return (
     <main className="page-shell">
       <section className="map-panel">
-        <div className={`map-panel-copy${isHeroCollapsed ? " is-collapsed" : ""}`}>
-          <p className="eyebrow">
-            <Sparkles size={16} />
-            Pikmin Bloom postcard atlas
-          </p>
-          {isHeroCollapsed ? (
-            <h1>Postcard atlas</h1>
-          ) : (
-            <>
-              <h1>Track every postcard drop on one shared map.</h1>
-              <p className="hero-copy">
-                Upload an image, pin its latitude and longitude, and the app will turn those
-                coordinates into country, region, and city tags for your collection.
-              </p>
-            </>
-          )}
-        </div>
-
-        <PostcardMap
-          onInteract={handleMapInteraction}
-          onPickCoordinates={handleMapPick}
-          onSelect={handleSelectPostcard}
-          postcards={filteredPostcards}
-          selectedId={selectedId}
+        <MapFocusCard
+          isCollapsed={isHeroCollapsed}
+          onEdit={setEditingId}
+          postcard={selectedPostcard}
         />
+
+        {isMapMounted ? (
+          <PostcardMap
+            onInteract={handleMapInteraction}
+            onPickCoordinates={handleMapPick}
+            onSelect={handleSelectPostcard}
+            postcards={filteredPostcards}
+            selectedId={selectedId}
+          />
+        ) : (
+          <div className="map-loading">Loading the postcard atlas...</div>
+        )}
       </section>
 
       <aside className="sidebar-panel">
@@ -780,48 +870,7 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
             onUpdated={handleUpdate}
             postcard={selectedPostcard}
           />
-        ) : selectedPostcard ? (
-          <section className="selected-card">
-            <div className="selected-card-image">
-              <Image
-                alt={selectedPostcard.title}
-                fill
-                sizes="360px"
-                src={selectedPostcard.imageUrl}
-                style={{ objectFit: "cover" }}
-                unoptimized
-              />
-              <button
-                aria-label={`Edit ${selectedPostcard.title}`}
-                className="image-action-button"
-                onClick={() => setEditingId(selectedPostcard.id)}
-                type="button"
-              >
-                <Pencil size={16} />
-              </button>
-            </div>
-            <div className="selected-card-copy">
-              <div className="selected-card-title-row">
-                <PlaceTypeBadge placeType={selectedPostcard.placeType} />
-                <h3>{selectedPostcard.title}</h3>
-              </div>
-              <p>{selectedPostcard.description}</p>
-              <div className="chip-row">
-                {getPostcardTags(selectedPostcard).map((tag) => (
-                    <span className="chip" key={tag}>
-                      {tag}
-                    </span>
-                  ))}
-              </div>
-              <p className="meta-line">{formatLocation(selectedPostcard)}</p>
-              <CoordinateCopyButton
-                isCopied={copiedId === selectedPostcard.id}
-                onCopy={handleCopyCoordinates}
-                postcard={selectedPostcard}
-              />
-            </div>
-          </section>
-        ) : (
+        ) : !selectedPostcard ? (
           <section className="empty-card">
             <h3>No postcards yet</h3>
             <p>
@@ -829,7 +878,7 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
               the coordinates.
             </p>
           </section>
-        )}
+        ) : null}
 
         <div className="list-panel">
           {filteredPostcards.length === 0 ? (
@@ -842,8 +891,6 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
             </div>
           ) : (
             filteredPostcards.map((postcard) => {
-              const location = formatLocation(postcard);
-
               return (
                 <article
                   className={`postcard-row${selectedId === postcard.id ? " is-active" : ""}`}
@@ -858,7 +905,7 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
                       <Image
                         alt={postcard.title}
                         fill
-                        sizes="96px"
+                        sizes="(max-width: 720px) calc(100vw - 88px), 96px"
                         src={postcard.imageUrl}
                         style={{ objectFit: "cover" }}
                         unoptimized
@@ -872,7 +919,6 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
                         </div>
                         <span>{new Date(postcard.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <p>{postcard.description}</p>
                       <div className="chip-row">
                         {getPostcardTags(postcard).map((tag) => (
                             <span className="chip" key={`${postcard.id}-${tag}`}>
@@ -880,7 +926,6 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
                             </span>
                           ))}
                       </div>
-                      {location ? <p className="meta-line">{location}</p> : null}
                     </div>
                   </button>
 

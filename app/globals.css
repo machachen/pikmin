@@ -100,6 +100,137 @@ button {
   box-shadow: 0 12px 24px rgba(56, 37, 20, 0.1);
 }
 
+.map-focus-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(448px, calc(100% - 36px));
+  max-width: min(448px, calc(100% - 36px));
+  padding: 14px;
+}
+
+.map-focus-card.is-collapsed {
+  width: min(420px, calc(100% - 36px));
+  max-width: min(420px, calc(100% - 36px));
+  padding: 12px;
+  gap: 12px;
+}
+
+.map-focus-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  border-radius: 20px;
+  background: #e6ddd0;
+}
+
+.map-focus-card.is-collapsed .map-focus-media {
+  aspect-ratio: 16 / 9.4;
+}
+
+.map-focus-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.map-focus-topline {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.map-focus-edit {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(74, 61, 48, 0.12);
+  border-radius: 999px;
+  color: var(--ink);
+  background: rgba(255, 250, 241, 0.88);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.map-focus-label {
+  gap: 10px;
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.map-focus-label-icon {
+  --glyph-size: 24px;
+  --icon-size: 15px;
+}
+
+.map-focus-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.map-focus-title-row > div {
+  min-width: 0;
+}
+
+.map-focus-title {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 1.48rem;
+  line-height: 1.05;
+}
+
+.map-focus-type,
+.map-focus-description,
+.map-focus-location {
+  margin: 0;
+}
+
+.map-focus-type {
+  margin-top: 6px;
+  color: var(--forest);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.map-focus-description,
+.map-focus-location {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.map-focus-description {
+  font-size: 0.9rem;
+}
+
+.map-focus-location {
+  font-size: 0.88rem;
+}
+
+.map-focus-tags {
+  margin-top: 0;
+}
+
+.map-focus-tags .chip {
+  min-height: 28px;
+  font-size: 0.76rem;
+}
+
+.map-focus-card .eyebrow {
+  margin: 0;
+}
+
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -126,9 +257,25 @@ button {
   max-width: 10ch;
 }
 
+.hero-title-collapsed {
+  display: none;
+}
+
 .map-panel-copy.is-collapsed h1 {
   font-size: 1.05rem;
   max-width: none;
+}
+
+.map-panel-copy.is-collapsed .hero-title-expanded {
+  display: none;
+}
+
+.map-panel-copy.is-collapsed .hero-title-collapsed {
+  display: inline;
+}
+
+.map-panel-copy.is-collapsed .hero-copy {
+  display: none;
 }
 
 .hero-copy,
@@ -139,7 +286,6 @@ button {
 .postcard-row-copy p,
 .popup-card p,
 .meta-line,
-.map-help,
 .map-loading,
 .map-tip {
   color: var(--muted);
@@ -170,19 +316,6 @@ button {
 
 .leaflet-control-attribution {
   background: rgba(255, 250, 241, 0.8) !important;
-}
-
-.map-help {
-  position: absolute;
-  left: 18px;
-  bottom: 18px;
-  z-index: 500;
-  padding: 10px 14px;
-  border: 1px solid rgba(74, 61, 48, 0.1);
-  border-radius: 999px;
-  background: rgba(255, 250, 241, 0.92);
-  box-shadow: 0 12px 24px rgba(56, 37, 20, 0.1);
-  font-size: 1rem;
 }
 
 .sidebar-panel {
@@ -228,11 +361,14 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   min-height: 38px;
   padding: 0 14px;
   border: 1px solid rgba(74, 61, 48, 0.12);
   border-radius: 999px;
   color: var(--muted);
+  font-weight: 700;
+  white-space: nowrap;
   background: rgba(255, 250, 241, 0.78);
   transition:
     transform 160ms ease,
@@ -365,7 +501,7 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   min-height: 40px;
   border: none;
   border-radius: 14px;
@@ -389,28 +525,49 @@ button {
   box-shadow: inset 0 0 0 1px rgba(230, 124, 82, 0.18);
 }
 
-.place-type-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.place-type-badge {
+.place-type-glyph,
+.filter-tab-glyph {
+  --glyph-size: 28px;
+  --icon-size: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--glyph-size);
+  height: var(--glyph-size);
   border-radius: 999px;
   color: white;
   flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
-.place-type-badge.is-flower {
+.place-type-glyph.is-flower {
   background: linear-gradient(135deg, #f08a68, #d96ab5);
 }
 
-.place-type-badge.is-mushroom {
+.place-type-glyph.is-mushroom {
   background: linear-gradient(135deg, #d95f4f, #9d3329);
+}
+
+.filter-tab-glyph.is-all {
+  background: linear-gradient(135deg, var(--forest), #4f857d);
+}
+
+.place-type-icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  display: block;
+}
+
+.place-type-badge {
+  --glyph-size: 28px;
+  --icon-size: 18px;
+}
+
+.type-tab .place-type-glyph,
+.filter-tab .place-type-glyph,
+.filter-tab .filter-tab-glyph {
+  --glyph-size: 24px;
+  --icon-size: 16px;
 }
 
 .field span {
@@ -519,6 +676,14 @@ button {
   font-size: 1.35rem;
 }
 
+.postcard-row-copy {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
 .selected-card-copy p,
 .postcard-row-copy p,
 .popup-card p {
@@ -552,6 +717,12 @@ button {
 .postcard-row .chip {
   min-height: 28px;
   font-size: 0.76rem;
+}
+
+.postcard-row-copy .chip-row {
+  margin-top: auto;
+  padding-top: 16px;
+  padding-bottom: 2px;
 }
 
 .meta-line {
@@ -611,7 +782,9 @@ button {
 }
 
 .postcard-row-image {
-  min-height: 96px;
+  aspect-ratio: 3 / 4;
+  min-height: 0;
+  align-self: start;
 }
 
 .postcard-row-head h3 {
@@ -792,33 +965,117 @@ button {
 }
 
 @media (max-width: 720px) {
+  body {
+    overflow: hidden;
+  }
+
   .page-shell {
-    gap: 14px;
-    padding: 14px;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 35fr) minmax(0, 65fr);
+    gap: 12px;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .map-panel {
+    position: relative;
+    top: auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .map-frame,
+  .leaflet-map {
+    height: 100%;
   }
 
   .map-panel-copy {
     width: calc(100% - 28px);
-    padding: 18px;
-  }
-
-  .map-panel-copy.is-collapsed {
-    display: block;
-    width: calc(100% - 28px);
     max-width: calc(100% - 28px);
     padding: 14px 16px 12px;
+    border-radius: 18px;
+    box-shadow: 0 12px 24px rgba(56, 37, 20, 0.1);
+  }
+
+  .map-panel-copy .eyebrow {
+    margin: 0 0 4px;
+    font-size: 0.74rem;
   }
 
   .map-panel-copy h1 {
-    font-size: 2rem;
+    font-size: 1.05rem;
+    max-width: none;
   }
 
-  .map-panel-copy.is-collapsed h1 {
-    font-size: 1.05rem;
+  .map-panel-copy .hero-title-expanded {
+    display: none;
+  }
+
+  .map-panel-copy .hero-title-collapsed {
+    display: inline;
+  }
+
+  .map-panel-copy .hero-copy {
+    display: none;
+  }
+
+  .map-focus-card,
+  .map-focus-card.is-collapsed {
+    display: none;
+  }
+
+  .map-focus-media,
+  .map-focus-card.is-collapsed .map-focus-media {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+    border-radius: 16px;
+  }
+
+  .map-focus-topline {
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .map-focus-edit {
+    top: 10px;
+    right: 10px;
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 0.76rem;
+  }
+
+  .map-focus-title {
+    font-size: 1.12rem;
+  }
+
+  .map-focus-type {
+    margin-top: 2px;
+    font-size: 0.76rem;
+  }
+
+  .map-focus-location {
+    margin-top: 6px;
+    font-size: 0.8rem;
+  }
+
+  .map-focus-card .place-type-badge {
+    --glyph-size: 24px;
+    --icon-size: 16px;
   }
 
   .sidebar-panel {
+    height: 100%;
+    min-height: 0;
     padding: 16px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .list-panel {
+    padding-bottom: 18px;
   }
 
   .field-grid,
@@ -827,17 +1084,36 @@ button {
   }
 
   .postcard-row-image {
-    min-height: 180px;
+    aspect-ratio: 16 / 9;
+    min-height: 0;
   }
 
   .sidebar-header,
   .composer-header,
   .composer-actions,
   .postcard-row-head,
-  .filter-tabs,
   .coordinate-copy-button,
   .coordinate-copy-text {
     flex-direction: column;
+  }
+
+  .filter-tabs {
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .filter-tab {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 10px;
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+
+  .filter-tab .place-type-glyph,
+  .filter-tab .filter-tab-glyph {
+    --glyph-size: 20px;
+    --icon-size: 13px;
   }
 
   .primary-button,

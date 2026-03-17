@@ -17,11 +17,10 @@ export const runtime = "nodejs";
 
 const postcardSchema = z.object({
   title: z.string().trim().min(1, "Add a title.").max(80, "Keep the title under 80 characters."),
-  description: z
-    .string()
-    .trim()
-    .min(1, "Add a short description.")
-    .max(800, "Keep the description under 800 characters."),
+  description: z.preprocess(
+    (value) => (typeof value === "string" ? value : ""),
+    z.string().trim().max(800, "Keep the description under 800 characters.")
+  ),
   latitude: z.coerce.number().min(-90, "Latitude must be between -90 and 90.").max(90),
   longitude: z.coerce.number().min(-180, "Longitude must be between -180 and 180.").max(180),
   placeType: z.enum(["mushroom", "flower"], {
