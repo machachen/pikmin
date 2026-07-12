@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"src/components/postcard-explorer.tsx -> @/src/components/postcard-map\":{\"id\":\"src/components/postcard-explorer.tsx -> @/src/components/postcard-map\",\"files\":[\"static/chunks/_app-pages-browser_src_components_postcard-map_tsx.js\"]}}"

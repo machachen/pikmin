@@ -1,12 +1,15 @@
 node_modules
 .next
+.next-broken-build
 dist
+tsconfig.tsbuildinfo
 
-data/postcards.sqlite
+data/*.sqlite*
 data/uploads/*
 !data/uploads/.gitkeep
 public/uploads/*
 !public/uploads/.gitkeep
+backups/
 
 .DS_Store
 *.log

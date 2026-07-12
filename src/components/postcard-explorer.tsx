@@ -3,8 +3,8 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import type { FormEvent } from "react";
-import { useEffect, useState, useTransition } from "react";
-import { Check, Copy, MapPin, Pencil, Plus, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { Check, Copy, MapPin, Pencil, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
 
 import type { Postcard, PostcardPlaceType } from "@/src/lib/types";
 
@@ -20,6 +20,8 @@ type Coordinates = {
   latitude: number;
   longitude: number;
 };
+
+const LIST_RENDER_LIMIT = 100;
 
 type PostcardExplorerProps = {
   initialPostcards: Postcard[];
@@ -681,7 +683,7 @@ function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
 
 export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   const [postcards, setPostcards] = useState(initialPostcards);
-  const [selectedId, setSelectedId] = useState<number | null>(initialPostcards[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isMapMounted, setIsMapMounted] = useState(false);
   const [pendingCoordinates, setPendingCoordinates] = useState<Coordinates | null>(null);
@@ -691,11 +693,63 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   const [isHeroCollapsed, setIsHeroCollapsed] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [countryFilter, setCountryFilter] = useState<string>("all");
 
-  const filteredPostcards =
-    placeFilter === "all"
-      ? postcards
-      : postcards.filter((postcard) => postcard.placeType === placeFilter);
+  const countryOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const postcard of postcards) {
+      if (postcard.country) {
+        counts.set(postcard.country, (counts.get(postcard.country) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [postcards]);
+
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredPostcards = useMemo(() => {
+    return postcards.filter((postcard) => {
+      if (placeFilter !== "all" && postcard.placeType !== placeFilter) {
+        return false;
+      }
+
+      if (countryFilter !== "all" && postcard.country !== countryFilter) {
+        return false;
+      }
+
+      if (normalizedQuery) {
+        const haystack = [
+          postcard.title,
+          postcard.description,
+          postcard.city,
+          postcard.region,
+          postcard.country,
+          postcard.locationLabel
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        const matchesAllTokens = normalizedQuery
+          .split(/\s+/)
+          .every((token) => haystack.includes(token));
+
+        if (!matchesAllTokens) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [postcards, placeFilter, countryFilter, normalizedQuery]);
+
+  const hasActiveFilters =
+    placeFilter !== "all" || countryFilter !== "all" || normalizedQuery.length > 0;
+
+  const visiblePostcards = filteredPostcards.slice(0, LIST_RENDER_LIMIT);
 
   const selectedPostcard = filteredPostcards.find((postcard) => postcard.id === selectedId) ?? null;
 
@@ -718,13 +772,10 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   }, []);
 
   useEffect(() => {
-    if (filteredPostcards.length === 0) {
+    // If the highlighted postcard is filtered out, clear the selection so the
+    // map frames the whole filtered set instead of flying to a stale pin.
+    if (selectedId !== null && !filteredPostcards.some((postcard) => postcard.id === selectedId)) {
       setSelectedId(null);
-      return;
-    }
-
-    if (!filteredPostcards.some((postcard) => postcard.id === selectedId)) {
-      setSelectedId(filteredPostcards[0].id);
     }
   }, [filteredPostcards, selectedId]);
 
@@ -847,7 +898,75 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
           </button>
         </div>
 
-        <PlaceFilterTabs onChange={setPlaceFilter} value={placeFilter} />
+        <PlaceFilterTabs
+          onChange={(value) => {
+            setPlaceFilter(value);
+            setSelectedId(null);
+          }}
+          value={placeFilter}
+        />
+
+        <div className="browse-controls">
+          <div className="search-field">
+            <Search className="search-field-icon" size={16} />
+            <input
+              aria-label="Search postcards"
+              className="search-input"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search title or place..."
+              type="text"
+              value={searchQuery}
+            />
+            {searchQuery ? (
+              <button
+                aria-label="Clear search"
+                className="search-clear"
+                onClick={() => setSearchQuery("")}
+                type="button"
+              >
+                <X size={14} />
+              </button>
+            ) : null}
+          </div>
+
+          {countryOptions.length > 0 ? (
+            <select
+              aria-label="Filter by country"
+              className="country-select"
+              onChange={(event) => {
+                setCountryFilter(event.target.value);
+                setSelectedId(null);
+              }}
+              value={countryFilter}
+            >
+              <option value="all">All countries</option>
+              {countryOptions.map((option) => (
+                <option key={option.name} value={option.name}>
+                  {option.name} ({option.count})
+                </option>
+              ))}
+            </select>
+          ) : null}
+
+          {hasActiveFilters ? (
+            <div className="browse-summary">
+              <span>
+                {filteredPostcards.length} of {postcards.length} spots
+              </span>
+              <button
+                className="browse-clear"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCountryFilter("all");
+                  setPlaceFilter("all");
+                }}
+                type="button"
+              >
+                Clear filters
+              </button>
+            </div>
+          ) : null}
+        </div>
 
         {actionError ? <p className="sidebar-error">{actionError}</p> : null}
 
@@ -884,13 +1003,13 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
           {filteredPostcards.length === 0 ? (
             <div className="empty-list">
               <p>
-                {placeFilter === "all"
+                {postcards.length === 0
                   ? "Your list will fill up as soon as the first postcard is saved."
-                  : `No ${formatPlaceType(placeFilter).toLowerCase()} postcards match this filter yet.`}
+                  : "No postcards match your search or filters."}
               </p>
             </div>
           ) : (
-            filteredPostcards.map((postcard) => {
+            visiblePostcards.map((postcard) => {
               return (
                 <article
                   className={`postcard-row${selectedId === postcard.id ? " is-active" : ""}`}
@@ -938,6 +1057,13 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
               );
             })
           )}
+
+          {filteredPostcards.length > LIST_RENDER_LIMIT ? (
+            <p className="list-truncation">
+              Showing the first {LIST_RENDER_LIMIT} of {filteredPostcards.length}. Refine your
+              search or country filter to see more.
+            </p>
+          ) : null}
         </div>
       </aside>
     </main>
