@@ -10,9 +10,9 @@
   --accent-deep: #bc5d39;
   --forest: #2e6a62;
   --cream: #fffaf1;
-  --radius-xl: 28px;
-  --radius-lg: 22px;
-  --radius-md: 16px;
+  --radius-xl: 22px;
+  --radius-lg: 18px;
+  --radius-md: 14px;
 }
 
 * {
@@ -47,10 +47,10 @@ button {
 
 .page-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 420px);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 384px);
+  gap: 14px;
   height: 100vh;
-  padding: 20px;
+  padding: 14px;
   overflow: hidden;
 }
 
@@ -67,8 +67,8 @@ button {
 
 .map-panel {
   position: sticky;
-  top: 20px;
-  height: calc(100vh - 40px);
+  top: 14px;
+  height: calc(100vh - 28px);
   min-height: 0;
   align-self: start;
 }
@@ -78,9 +78,9 @@ button {
   top: 18px;
   left: 18px;
   z-index: 500;
-  width: min(460px, calc(100% - 36px));
-  padding: 24px 24px 20px;
-  border-radius: 24px;
+  width: min(430px, calc(100% - 32px));
+  padding: 18px 20px 16px;
+  border-radius: 18px;
   background: linear-gradient(135deg, rgba(255, 250, 241, 0.95), rgba(251, 240, 224, 0.88));
   border: 1px solid rgba(126, 86, 47, 0.14);
   box-shadow: 0 18px 38px rgba(56, 37, 20, 0.12);
@@ -187,8 +187,8 @@ button {
 .map-focus-title {
   margin: 0;
   font-family: "Iowan Old Style", "Palatino Linotype", serif;
-  font-size: 1.48rem;
-  line-height: 1.05;
+  font-size: 1.18rem;
+  line-height: 1.1;
 }
 
 .map-focus-type,
@@ -253,8 +253,8 @@ button {
 }
 
 .map-panel-copy h1 {
-  font-size: clamp(2.2rem, 4vw, 4rem);
-  max-width: 10ch;
+  font-size: clamp(1.5rem, 2.3vw, 2.15rem);
+  max-width: 15ch;
 }
 
 .hero-title-collapsed {
@@ -293,9 +293,9 @@ button {
 }
 
 .hero-copy {
-  margin: 16px 0 0;
+  margin: 10px 0 0;
   max-width: 42ch;
-  font-size: 1rem;
+  font-size: 0.88rem;
 }
 
 .map-panel-copy.is-collapsed .eyebrow {
@@ -321,9 +321,9 @@ button {
 .sidebar-panel {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 40px);
+  height: calc(100vh - 28px);
   min-height: 0;
-  padding: 22px;
+  padding: 16px;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-gutter: stable;
@@ -340,11 +340,11 @@ button {
 }
 
 .sidebar-header {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .sidebar-header h2 {
-  font-size: 2rem;
+  font-size: 1.35rem;
 }
 
 .sidebar-copy {
@@ -362,7 +362,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 38px;
+  min-height: 34px;
   padding: 0 14px;
   border: 1px solid rgba(74, 61, 48, 0.12);
   border-radius: 999px;
@@ -409,7 +409,7 @@ button {
 
 .search-input {
   width: 100%;
-  padding: 12px 40px;
+  padding: 10px 38px;
   border: 1px solid rgba(76, 58, 39, 0.12);
   border-radius: 16px;
   background: rgba(255, 250, 241, 0.84);
@@ -449,7 +449,7 @@ button {
 
 .country-select {
   width: 100%;
-  min-height: 42px;
+  min-height: 38px;
   padding: 0 14px;
   border: 1px solid rgba(76, 58, 39, 0.12);
   border-radius: 16px;
@@ -512,7 +512,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
+  min-height: 38px;
   border-radius: 999px;
   border: none;
   transition:
@@ -564,7 +564,7 @@ button {
 .composer-card,
 .selected-card,
 .empty-card {
-  padding: 18px;
+  padding: 14px;
   border: 1px solid rgba(76, 58, 39, 0.1);
   border-radius: var(--radius-lg);
   background: var(--paper-strong);
@@ -781,7 +781,7 @@ button {
 .empty-card h3 {
   margin: 0;
   font-family: "Iowan Old Style", "Palatino Linotype", serif;
-  font-size: 1.35rem;
+  font-size: 1.1rem;
 }
 
 .postcard-row-copy {
@@ -813,12 +813,12 @@ button {
 .chip {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
+  min-height: 26px;
   padding: 0 10px;
   border-radius: 999px;
   background: rgba(46, 106, 98, 0.1);
   color: var(--forest);
-  font-size: 0.83rem;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
@@ -861,10 +861,10 @@ button {
 
 .postcard-row {
   display: grid;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
   border: 1px solid rgba(76, 58, 39, 0.08);
-  border-radius: 20px;
+  border-radius: 16px;
   background: rgba(255, 250, 241, 0.78);
   text-align: left;
   transition:
@@ -875,8 +875,8 @@ button {
 
 .postcard-row-main {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
   width: 100%;
   padding: 0;
   border: none;

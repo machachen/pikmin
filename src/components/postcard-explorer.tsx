@@ -61,7 +61,9 @@ function formatPlaceType(placeType: PostcardPlaceType) {
 }
 
 function getPostcardTags(postcard: Postcard) {
-  return [postcard.city, postcard.region, postcard.country].filter(Boolean);
+  return Array.from(
+    new Set([postcard.city, postcard.region, postcard.country].filter(Boolean))
+  );
 }
 
 function PlaceTypeIcon({ placeType }: { placeType: PostcardPlaceType }) {
@@ -989,7 +991,7 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
             onUpdated={handleUpdate}
             postcard={selectedPostcard}
           />
-        ) : !selectedPostcard ? (
+        ) : postcards.length === 0 ? (
           <section className="empty-card">
             <h3>No postcards yet</h3>
             <p>
