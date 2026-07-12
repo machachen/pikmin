@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import type { FormEvent } from "react";
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { Check, Copy, MapPin, Pencil, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
+import { Check, Copy, Lock, LogOut, MapPin, Pencil, Plus, Search, Sparkles, Trash2, X } from "lucide-react";
 
 import type { Postcard, PostcardPlaceType } from "@/src/lib/types";
 
@@ -25,6 +25,8 @@ const LIST_RENDER_LIMIT = 100;
 
 type PostcardExplorerProps = {
   initialPostcards: Postcard[];
+  initialCanEdit: boolean;
+  authProtected: boolean;
 };
 
 function formatCoordinates(postcard: Pick<Postcard, "latitude" | "longitude">) {
@@ -607,12 +609,13 @@ function EditPostcardForm({
 }
 
 type MapFocusCardProps = {
+  canEdit: boolean;
   isCollapsed: boolean;
   onEdit: (postcardId: number) => void;
   postcard: Postcard | null;
 };
 
-function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
+function MapFocusCard({ canEdit, isCollapsed, onEdit, postcard }: MapFocusCardProps) {
   if (!postcard) {
     return (
       <div className={`map-panel-copy${isCollapsed ? " is-collapsed" : ""}`}>
@@ -645,10 +648,12 @@ function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
           style={{ objectFit: "cover" }}
           unoptimized
         />
-        <button className="map-focus-edit" onClick={() => onEdit(postcard.id)} type="button">
-          <Pencil size={14} />
-          Edit
-        </button>
+        {canEdit ? (
+          <button className="map-focus-edit" onClick={() => onEdit(postcard.id)} type="button">
+            <Pencil size={14} />
+            Edit
+          </button>
+        ) : null}
       </div>
       <div className="map-focus-copy">
         <div className="map-focus-topline">
@@ -681,7 +686,11 @@ function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
   );
 }
 
-export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
+export function PostcardExplorer({
+  initialPostcards,
+  initialCanEdit,
+  authProtected
+}: PostcardExplorerProps) {
   const [postcards, setPostcards] = useState(initialPostcards);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
@@ -695,6 +704,11 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [countryFilter, setCountryFilter] = useState<string>("all");
+  const [canEdit, setCanEdit] = useState(initialCanEdit);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const countryOptions = useMemo(() => {
     const counts = new Map<string, number>();
@@ -858,10 +872,51 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
     setActionError(null);
   }
 
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLoginError(null);
+    setIsLoggingIn(true);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: loginPassword })
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        setLoginError(payload.error ?? "Incorrect password.");
+        return;
+      }
+
+      setCanEdit(true);
+      setIsLoginOpen(false);
+      setLoginPassword("");
+    } catch {
+      setLoginError("Could not sign in right now.");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Ignore network errors on logout.
+    }
+
+    setCanEdit(false);
+    setIsComposerOpen(false);
+    setEditingId(null);
+  }
+
   return (
     <main className="page-shell">
       <section className="map-panel">
         <MapFocusCard
+          canEdit={canEdit}
           isCollapsed={isHeroCollapsed}
           onEdit={setEditingId}
           postcard={selectedPostcard}
@@ -886,17 +941,46 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
             <p className="eyebrow">Collection</p>
             <h2>{filteredPostcards.length} postcard spots</h2>
           </div>
-          <button
-            className="primary-button"
-            onClick={() => {
-              setEditingId(null);
-              setIsComposerOpen(true);
-            }}
-            type="button"
-          >
-            <Plus size={18} />
-            Add
-          </button>
+          <div className="sidebar-header-actions">
+            {canEdit ? (
+              <>
+                <button
+                  className="primary-button"
+                  onClick={() => {
+                    setEditingId(null);
+                    setIsComposerOpen(true);
+                  }}
+                  type="button"
+                >
+                  <Plus size={18} />
+                  Add
+                </button>
+                {authProtected ? (
+                  <button
+                    aria-label="Lock editing"
+                    className="lock-button"
+                    onClick={handleLogout}
+                    title="Lock editing"
+                    type="button"
+                  >
+                    <LogOut size={16} />
+                  </button>
+                ) : null}
+              </>
+            ) : (
+              <button
+                className="secondary-button"
+                onClick={() => {
+                  setLoginError(null);
+                  setIsLoginOpen(true);
+                }}
+                type="button"
+              >
+                <Lock size={16} />
+                Unlock
+              </button>
+            )}
+          </div>
         </div>
 
         <PlaceFilterTabs
@@ -1077,6 +1161,46 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
           ) : null}
         </div>
       </aside>
+
+      {isLoginOpen ? (
+        <div className="login-overlay" role="dialog" aria-modal="true">
+          <form className="login-card" onSubmit={handleLogin}>
+            <div className="login-head">
+              <p className="eyebrow">
+                <Lock size={16} />
+                Protected
+              </p>
+              <h2>Unlock editing</h2>
+            </div>
+            <p className="login-copy">
+              Enter the editing password to add, edit, or delete postcards. Viewing stays open to
+              everyone.
+            </p>
+            <label className="field">
+              <span>Password</span>
+              <input
+                autoFocus
+                onChange={(event) => setLoginPassword(event.target.value)}
+                type="password"
+                value={loginPassword}
+              />
+            </label>
+            {loginError ? <p className="form-error">{loginError}</p> : null}
+            <div className="composer-actions">
+              <button
+                className="secondary-button"
+                onClick={() => setIsLoginOpen(false)}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button className="primary-button" disabled={isLoggingIn} type="submit">
+                {isLoggingIn ? "Unlocking..." : "Unlock"}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </main>
   );
 }

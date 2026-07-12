@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { canWrite } from "@/src/lib/auth";
 import { reverseGeocode } from "@/src/lib/geocode";
 import { deletePostcard, getPostcardById, updatePostcard } from "@/src/lib/postcards";
 import {
@@ -56,6 +57,10 @@ export async function DELETE(
   _request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!(await canWrite())) {
+    return NextResponse.json({ error: "Sign in to delete postcards." }, { status: 401 });
+  }
+
   const { id } = await context.params;
   const postcardId = Number(id);
 
@@ -88,6 +93,10 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
+  if (!(await canWrite())) {
+    return NextResponse.json({ error: "Sign in to edit postcards." }, { status: 401 });
+  }
+
   const { id } = await context.params;
   const postcardId = Number(id);
 

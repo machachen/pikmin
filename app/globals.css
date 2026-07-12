@@ -504,6 +504,71 @@ button {
   background: rgba(211, 84, 84, 0.1);
 }
 
+.sidebar-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lock-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 61, 48, 0.12);
+  color: var(--muted);
+  background: rgba(255, 250, 241, 0.78);
+  transition:
+    transform 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.lock-button:hover {
+  transform: translateY(-1px);
+  color: var(--ink);
+  border-color: rgba(230, 124, 82, 0.42);
+}
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(47, 38, 31, 0.3);
+  backdrop-filter: blur(4px);
+  animation: fade-up 200ms ease;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(380px, 100%);
+  padding: 22px;
+  border: 1px solid rgba(76, 58, 39, 0.12);
+  border-radius: var(--radius-lg);
+  background: var(--paper-strong);
+  box-shadow: var(--shadow);
+}
+
+.login-head h2 {
+  margin: 4px 0 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 1.3rem;
+}
+
+.login-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .primary-button,
 .secondary-button,
 .ghost-button,

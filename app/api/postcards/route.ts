@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { canWrite } from "@/src/lib/auth";
 import { reverseGeocode } from "@/src/lib/geocode";
 import { createPostcard, getAllPostcards } from "@/src/lib/postcards";
 import { buildUploadUrl, getUploadsDirectory } from "@/src/lib/uploads";
@@ -52,6 +53,10 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!(await canWrite())) {
+    return NextResponse.json({ error: "Sign in to add postcards." }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const image = formData.get("image");
 
