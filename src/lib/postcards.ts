@@ -14,8 +14,43 @@ type PostcardRow = {
   region: string | null;
   city: string | null;
   location_label: string | null;
+  tags: string | null;
   created_at: string;
 };
+
+const POSTCARD_COLUMNS = `
+  id,
+  title,
+  description,
+  latitude,
+  longitude,
+  place_type,
+  image_url,
+  country,
+  region,
+  city,
+  location_label,
+  tags,
+  created_at
+`;
+
+function parseTags(value: string | null): string[] | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) {
+      return null;
+    }
+
+    const tags = parsed.filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0);
+    return tags.length > 0 ? tags : null;
+  } catch {
+    return null;
+  }
+}
 
 function mapPostcardRow(row: PostcardRow): Postcard {
   const uploadFileName = getUploadFileNameFromUrl(row.image_url);
@@ -32,6 +67,7 @@ function mapPostcardRow(row: PostcardRow): Postcard {
     region: row.region,
     city: row.city,
     locationLabel: row.location_label,
+    tags: parseTags(row.tags),
     createdAt: row.created_at
   };
 }
@@ -39,23 +75,7 @@ function mapPostcardRow(row: PostcardRow): Postcard {
 export function getAllPostcards() {
   const rows = getDb()
     .prepare(
-      `
-        SELECT
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          place_type,
-          image_url,
-          country,
-          region,
-          city,
-          location_label,
-          created_at
-        FROM postcards
-        ORDER BY datetime(created_at) DESC, id DESC
-      `
+      `SELECT ${POSTCARD_COLUMNS} FROM postcards ORDER BY datetime(created_at) DESC, id DESC`
     )
     .all() as PostcardRow[];
 
@@ -64,25 +84,7 @@ export function getAllPostcards() {
 
 export function getPostcardById(id: number) {
   const row = getDb()
-    .prepare(
-      `
-        SELECT
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          place_type,
-          image_url,
-          country,
-          region,
-          city,
-          location_label,
-          created_at
-        FROM postcards
-        WHERE id = ?
-      `
-    )
+    .prepare(`SELECT ${POSTCARD_COLUMNS} FROM postcards WHERE id = ?`)
     .get(id) as PostcardRow | undefined;
 
   return row ? mapPostcardRow(row) : null;
@@ -124,25 +126,7 @@ export function createPostcard(input: CreatePostcardInput) {
     );
 
   const row = db
-    .prepare(
-      `
-        SELECT
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          place_type,
-          image_url,
-          country,
-          region,
-          city,
-          location_label,
-          created_at
-        FROM postcards
-        WHERE id = ?
-      `
-    )
+    .prepare(`SELECT ${POSTCARD_COLUMNS} FROM postcards WHERE id = ?`)
     .get(Number(result.lastInsertRowid)) as PostcardRow;
 
   return mapPostcardRow(row);
@@ -151,25 +135,7 @@ export function createPostcard(input: CreatePostcardInput) {
 export function deletePostcard(id: number) {
   const db = getDb();
   const row = db
-    .prepare(
-      `
-        SELECT
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          place_type,
-          image_url,
-          country,
-          region,
-          city,
-          location_label,
-          created_at
-        FROM postcards
-        WHERE id = ?
-      `
-    )
+    .prepare(`SELECT ${POSTCARD_COLUMNS} FROM postcards WHERE id = ?`)
     .get(id) as PostcardRow | undefined;
 
   if (!row) {
@@ -220,26 +186,17 @@ export function updatePostcard(id: number, input: UpdatePostcardInput) {
   }
 
   const row = db
-    .prepare(
-      `
-        SELECT
-          id,
-          title,
-          description,
-          latitude,
-          longitude,
-          place_type,
-          image_url,
-          country,
-          region,
-          city,
-          location_label,
-          created_at
-        FROM postcards
-        WHERE id = ?
-      `
-    )
+    .prepare(`SELECT ${POSTCARD_COLUMNS} FROM postcards WHERE id = ?`)
     .get(id) as PostcardRow;
 
   return mapPostcardRow(row);
+}
+
+export function setPostcardTags(id: number, tags: string[]) {
+  const db = getDb();
+  const result = db
+    .prepare("UPDATE postcards SET tags = ? WHERE id = ?")
+    .run(JSON.stringify(tags), id);
+
+  return result.changes > 0;
 }

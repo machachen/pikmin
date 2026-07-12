@@ -25,6 +25,7 @@ function initializeDatabase() {
       region TEXT,
       city TEXT,
       location_label TEXT,
+      tags TEXT,
       created_at TEXT NOT NULL
     )
   `);
@@ -35,6 +36,10 @@ function initializeDatabase() {
 
   if (!columns.some((column) => column.name === "place_type")) {
     db.exec("ALTER TABLE postcards ADD COLUMN place_type TEXT NOT NULL DEFAULT 'flower'");
+  }
+
+  if (!columns.some((column) => column.name === "tags")) {
+    db.exec("ALTER TABLE postcards ADD COLUMN tags TEXT");
   }
 
   return db;

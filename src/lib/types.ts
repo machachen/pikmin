@@ -12,8 +12,9 @@ export type Postcard = {
   region: string | null;
   city: string | null;
   locationLabel: string | null;
+  tags: string[] | null;
   createdAt: string;
 };
 
-export type CreatePostcardInput = Omit<Postcard, "id" | "createdAt">;
+export type CreatePostcardInput = Omit<Postcard, "id" | "createdAt" | "tags">;
 export type UpdatePostcardInput = CreatePostcardInput;

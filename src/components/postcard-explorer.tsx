@@ -49,10 +49,6 @@ async function copyText(text: string) {
 }
 
 function formatLocation(postcard: Postcard) {
-  if (postcard.locationLabel) {
-    return postcard.locationLabel;
-  }
-
   return [postcard.city, postcard.region, postcard.country].filter(Boolean).join(", ");
 }
 
@@ -60,10 +56,8 @@ function formatPlaceType(placeType: PostcardPlaceType) {
   return placeType === "mushroom" ? "Mushroom" : "Flower";
 }
 
-function getPostcardTags(postcard: Postcard) {
-  return Array.from(
-    new Set([postcard.city, postcard.region, postcard.country].filter(Boolean))
-  );
+function getTopTags(postcard: Postcard, limit = 3) {
+  return postcard.tags ? postcard.tags.slice(0, limit) : [];
 }
 
 function PlaceTypeIcon({ placeType }: { placeType: PostcardPlaceType }) {
@@ -638,7 +632,7 @@ function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
     );
   }
 
-  const locationTags = getPostcardTags(postcard);
+  const topTags = getTopTags(postcard);
 
   return (
     <div className="map-panel-copy map-focus-card">
@@ -667,17 +661,21 @@ function MapFocusCard({ isCollapsed, onEdit, postcard }: MapFocusCardProps) {
           <h2 className="map-focus-title">{postcard.title}</h2>
         </div>
         {postcard.description ? <p className="map-focus-description">{postcard.description}</p> : null}
-        {locationTags.length > 0 ? (
-          <div className="chip-row map-focus-tags">
-            {locationTags.map((tag) => (
-              <span className="chip" key={`${postcard.id}-${tag}`}>
+        {formatLocation(postcard) ? (
+          <p className="map-focus-location">
+            <MapPin size={14} />
+            {formatLocation(postcard)}
+          </p>
+        ) : null}
+        {topTags.length > 0 ? (
+          <div className="tag-chip-row map-focus-tags">
+            {topTags.map((tag) => (
+              <span className="tag-chip" key={`${postcard.id}-tag-${tag}`}>
                 {tag}
               </span>
             ))}
           </div>
-        ) : (
-          <p className="map-focus-location">{formatLocation(postcard)}</p>
-        )}
+        ) : null}
       </div>
     </div>
   );
@@ -729,7 +727,8 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
           postcard.city,
           postcard.region,
           postcard.country,
-          postcard.locationLabel
+          postcard.locationLabel,
+          ...(postcard.tags ?? [])
         ]
           .filter(Boolean)
           .join(" ")
@@ -1040,12 +1039,22 @@ export function PostcardExplorer({ initialPostcards }: PostcardExplorerProps) {
                         </div>
                         <span>{new Date(postcard.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <div className="chip-row">
-                        {getPostcardTags(postcard).map((tag) => (
-                            <span className="chip" key={`${postcard.id}-${tag}`}>
-                              {tag}
-                            </span>
-                          ))}
+                      <div className="postcard-row-meta">
+                        {formatLocation(postcard) ? (
+                          <p className="postcard-row-location">
+                            <MapPin size={13} />
+                            {formatLocation(postcard)}
+                          </p>
+                        ) : null}
+                        {getTopTags(postcard).length > 0 ? (
+                          <div className="tag-chip-row">
+                            {getTopTags(postcard).map((tag) => (
+                              <span className="tag-chip" key={`${postcard.id}-tag-${tag}`}>
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </button>

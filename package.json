@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "backup": "node scripts/backup.mjs",
     "import-backup": "node scripts/import-backup.mjs",
-    "backfill": "node scripts/backfill-locations.mjs"
+    "backfill": "node scripts/backfill-locations.mjs",
+    "tag": "node scripts/tag-images.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",
